@@ -45,17 +45,22 @@ const GenerateSermon = () => {
     }
     
     setIsLoading(true);
+    setGeneratedSermon(null); // Clear any previous sermon
     
     try {
+      console.log("Invoking edge function with data:", formData);
+      
       // Chamar a edge function do Supabase para gerar o sermão
       const { data, error } = await supabase.functions.invoke('generate-sermon', {
         body: formData
       });
       
       if (error) {
+        console.error("Supabase function error:", error);
         throw error;
       }
       
+      console.log("Received sermon data:", data);
       setGeneratedSermon(data);
       setRemainingGenerations(prev => prev - 1);
       

@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+// Get the DeepSeek API key from environment variables
 const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
 
 const corsHeaders = {
@@ -19,6 +20,8 @@ serve(async (req) => {
     
     // Create prompt for DeepSeek
     const prompt = createSermonPrompt(theme, biblePassage, sermonType, duration, additionalNotes);
+    
+    console.log("Calling DeepSeek API with prompt:", prompt);
     
     // Call DeepSeek API
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -47,6 +50,7 @@ serve(async (req) => {
     const data = await response.json();
     
     if (!response.ok) {
+      console.error("DeepSeek API Error:", data);
       throw new Error(data.error?.message || 'Falha ao gerar sermão com a API DeepSeek');
     }
 
