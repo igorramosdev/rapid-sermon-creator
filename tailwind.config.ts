@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -52,15 +53,32 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
+				// Custom colors
+				brand: {
+					blue: {
+						50: '#EEF5FF',
+						100: '#D5E5FF',
+						200: '#A8C7FF',
+						300: '#7BA9FF',
+						400: '#4F8BFF',
+						500: '#3B82F6',  // Primary blue
+						600: '#1E40AF',  // Darker blue
+						700: '#1E3A8A',
+						800: '#1E3A6E',
+						900: '#172554',
+					},
+					gold: {
+						50: '#FFF9E6',
+						100: '#FFF0BF',
+						200: '#FFE180',
+						300: '#FFD24D',
+						400: '#F7C948',
+						500: '#D4AF37',  // Primary gold
+						600: '#B3922E',
+						700: '#8C7224',
+						800: '#665219',
+						900: '#3D300F',
+					}
 				}
 			},
 			borderRadius: {
@@ -84,11 +102,20 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					from: {
+						opacity: '0'
+					},
+					to: {
+						opacity: '1'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.5s ease-out'
 			}
 		}
 	},
