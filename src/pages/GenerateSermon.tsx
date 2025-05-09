@@ -7,36 +7,8 @@ import SermonForm, { SermonFormData } from '@/components/SermonForm';
 import SermonDisplay, { SermonData } from '@/components/SermonDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
-// Dados de exemplo para simulação
-const sampleSermon: SermonData = {
-  title: "A Fé que Move Montanhas",
-  bibleReference: "Mateus 17:20",
-  introduction: "Em Mateus 17:20, Jesus nos ensina uma lição poderosa sobre o poder da fé, mesmo quando parece pequena como um grão de mostarda. Neste sermão, exploraremos o que significa ter uma fé que pode mover montanhas em nossa vida espiritual.",
-  points: [
-    {
-      title: "O Que é Fé Segundo a Bíblia",
-      content: "Hebreus 11:1 define a fé como 'a certeza daquilo que esperamos e a prova das coisas que não vemos'. A fé não é apenas um sentimento, mas uma convicção profunda baseada na confiança em Deus e em Sua Palavra.",
-      bibleReferences: ["Hebreus 11:1-3", "Romanos 10:17"]
-    },
-    {
-      title: "Por Que Jesus Comparou a Fé a um Grão de Mostarda",
-      content: "Jesus utilizou a metáfora do grão de mostarda para ilustrar que não é a quantidade de fé que importa, mas sua qualidade e autenticidade. O grão de mostarda é minúsculo, mas cresce e se torna uma árvore grande. Da mesma forma, mesmo uma pequena fé genuína pode produzir resultados extraordinários.",
-      bibleReferences: ["Mateus 13:31-32", "Lucas 17:6"]
-    },
-    {
-      title: "Como Desenvolver uma Fé Autêntica",
-      content: "A fé autêntica é desenvolvida através da Palavra de Deus, da oração, da comunhão com outros crentes e das experiências de vida. Romanos 10:17 nos diz que 'a fé vem pelo ouvir, e o ouvir pela Palavra de Deus'. Quanto mais conhecemos a Deus e Sua Palavra, mais nossa fé se fortalece.",
-      bibleReferences: ["Romanos 10:17", "Tiago 2:14-26", "1 Pedro 1:7"]
-    }
-  ],
-  conclusion: "A fé que move montanhas não é necessariamente uma fé grande, mas uma fé genuína depositada no Deus grande que servimos. Não subestime o poder da fé, mesmo quando ela parece pequena como um grão de mostarda. Quando colocamos nossa confiança em Deus e agimos de acordo com Sua vontade, podemos ver transformações extraordinárias em nossas vidas e ministérios.",
-  applicationQuestions: [
-    "Como você tem exercitado sua fé nas situações difíceis da sua vida?",
-    "Quais são as 'montanhas' em sua vida que precisam ser movidas pela fé?",
-    "De que maneiras práticas você pode fortalecer sua fé diariamente?"
-  ]
-};
+import { supabase } from '@/integrations/supabase/client';
+import SermonLoadingSkeleton from '@/components/SermonLoadingSkeleton';
 
 const GenerateSermon = () => {
   const navigate = useNavigate();
@@ -62,7 +34,7 @@ const GenerateSermon = () => {
     }
   }, [navigate, toast]);
   
-  const handleGenerateSermon = (formData: SermonFormData) => {
+  const handleGenerateSermon = async (formData: SermonFormData) => {
     if (remainingGenerations <= 0) {
       toast({
         title: "Limite de gerações atingido",
@@ -74,35 +46,46 @@ const GenerateSermon = () => {
     
     setIsLoading(true);
     
-    // Simulando o processo de geração
-    setTimeout(() => {
-      // Usar dados de exemplo (em produção, isso seria substituído por uma chamada de API)
-      setGeneratedSermon({
-        ...sampleSermon,
-        title: formData.theme,
-        bibleReference: formData.biblePassage
+    try {
+      // Chamar a edge function do Supabase para gerar o sermão
+      const { data, error } = await supabase.functions.invoke('generate-sermon', {
+        body: formData
       });
       
+      if (error) {
+        throw error;
+      }
+      
+      setGeneratedSermon(data);
       setRemainingGenerations(prev => prev - 1);
-      setIsLoading(false);
       
       toast({
         title: "Sermão gerado com sucesso!",
         description: "Seu sermão foi criado e está pronto para uso."
       });
       
-      // Simular salvar no histórico
+      // Salvar no histórico
       const sermonHistory = JSON.parse(localStorage.getItem('sermonHistory') || '[]');
       const newSermon = {
         id: Date.now().toString(),
-        title: formData.theme,
-        bibleReference: formData.biblePassage,
+        title: data.title,
+        bibleReference: data.bibleReference,
         createdAt: new Date().toISOString()
       };
       sermonHistory.push(newSermon);
       localStorage.setItem('sermonHistory', JSON.stringify(sermonHistory));
       
-    }, 2000);
+    } catch (error) {
+      console.error('Erro ao gerar sermão:', error);
+      
+      toast({
+        title: "Erro ao gerar sermão",
+        description: "Ocorreu um erro ao gerar o sermão. Por favor, tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   if (!isLoggedIn) {
@@ -137,10 +120,7 @@ const GenerateSermon = () => {
             
             <div>
               {isLoading ? (
-                <div className="bg-white rounded-lg border shadow-sm p-6 flex flex-col items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-blue-600 mb-4"></div>
-                  <p className="text-gray-600">Gerando sermão personalizado...</p>
-                </div>
+                <SermonLoadingSkeleton />
               ) : generatedSermon ? (
                 <SermonDisplay sermon={generatedSermon} />
               ) : (
