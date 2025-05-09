@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Home, User, Menu, X, Settings, LogOut, BookOpen } from "lucide-react";
 
@@ -8,15 +8,16 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Verificar o estado de login ao carregar o componente
+  // Verificar o estado de login ao carregar o componente e quando a rota muda
   useEffect(() => {
     const checkLoginStatus = () => {
       const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
       setIsLoggedIn(loggedIn);
     };
     
-    // Verificar no carregamento inicial
+    // Verificar no carregamento inicial e quando a rota muda
     checkLoginStatus();
     
     // Criar um evento personalizado para atualizar o navbar quando o status de login mudar
@@ -25,16 +26,23 @@ const Navbar = () => {
     return () => {
       window.removeEventListener('loginStatusChanged', checkLoginStatus);
     };
-  }, []);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('sermonHistory');
     setIsLoggedIn(false);
     
     // Disparar evento para outros componentes saberem da mudança
     window.dispatchEvent(new Event('loginStatusChanged'));
     
     navigate('/');
+
+    // Mostrar toast de logout (implementar)
+    // toast({
+    //   title: "Logout realizado",
+    //   description: "Você saiu da sua conta com sucesso."
+    // });
   };
 
   return (

@@ -24,6 +24,12 @@ const HeroSection = () => {
       const elements = document.querySelectorAll('.animate-on-scroll');
       elements.forEach(el => observer.observe(el));
 
+      // Add animations to background elements
+      const bgElements = document.querySelectorAll('.bg-element');
+      bgElements.forEach(el => {
+        el.classList.add('animate-fade-in');
+      });
+
       return () => {
         elements.forEach(el => observer.unobserve(el));
       };
@@ -35,9 +41,11 @@ const HeroSection = () => {
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-brand-blue-50 to-white opacity-80"></div>
         {/* Elementos decorativos animados */}
-        <div className="absolute top-20 left-10 w-20 h-20 bg-brand-blue-100 rounded-full opacity-40 animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-16 h-16 bg-brand-gold-100 rounded-full opacity-60 animate-pulse" style={{animationDelay: "1s"}}></div>
-        <div className="absolute top-40 right-[20%] w-12 h-12 bg-brand-blue-200 rounded-full opacity-30 animate-pulse" style={{animationDelay: "1.5s"}}></div>
+        <div className="bg-element absolute top-20 left-10 w-20 h-20 bg-brand-blue-100 rounded-full opacity-40 animate-pulse"></div>
+        <div className="bg-element absolute bottom-20 right-10 w-16 h-16 bg-brand-gold-100 rounded-full opacity-60 animate-pulse" style={{animationDelay: "1s"}}></div>
+        <div className="bg-element absolute top-40 right-[20%] w-12 h-12 bg-brand-blue-200 rounded-full opacity-30 animate-pulse" style={{animationDelay: "1.5s"}}></div>
+        <div className="bg-element absolute bottom-40 left-[15%] w-24 h-24 bg-brand-gold-50 rounded-full opacity-20 animate-pulse" style={{animationDelay: "2s"}}></div>
+        <div className="bg-element absolute top-[30%] left-[30%] w-8 h-8 bg-brand-blue-300 rounded-full opacity-10 animate-pulse" style={{animationDelay: "0.7s"}}></div>
       </div>
       
       <div className="container-custom relative z-10 py-20 md:py-28">
@@ -55,10 +63,10 @@ const HeroSection = () => {
               biblicamente fundamentados de forma rápida, fácil e inspiradora.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 animate-fade-in" style={{animationDelay: "0.5s"}}>
-              <Button size="lg" className="bg-brand-blue-600 hover:bg-brand-blue-700 hover-scale" asChild>
+              <Button size="lg" className="bg-brand-blue-600 hover:bg-brand-blue-700 hover-scale transition-all transform" asChild>
                 <Link to="/generate">Crie seu sermão agora</Link>
               </Button>
-              <Button variant="outline" size="lg" className="hover-scale" asChild>
+              <Button variant="outline" size="lg" className="hover-scale transition-all" asChild>
                 <Link to="/plans">Ver planos</Link>
               </Button>
             </div>
@@ -77,7 +85,7 @@ const HeroSection = () => {
           </div>
           
           <div className="relative animate-fade-in hover-scale" style={{animationDelay: "0.5s"}}>
-            <div className="bg-white shadow-xl rounded-xl border border-gray-100 p-6 transition-all hover:shadow-2xl">
+            <div className="bg-white shadow-xl rounded-xl border border-gray-100 p-6 transition-all hover:shadow-2xl transform transition duration-300 hover:translate-y-[-5px]">
               <div className="mb-4">
                 <div className="flex gap-1 mb-1">
                   <div className="w-2 h-2 rounded-full bg-red-500"></div>
@@ -102,8 +110,8 @@ const HeroSection = () => {
                 </div>
                 
                 <div className="flex justify-end gap-2 mt-2 animate-fade-in" style={{animationDelay: "1.3s"}}>
-                  <Button variant="outline" size="sm">Copiar</Button>
-                  <Button size="sm" className="hover-scale">Gerar Completo</Button>
+                  <Button variant="outline" size="sm" className="hover-scale transition-all duration-200">Copiar</Button>
+                  <Button size="sm" className="hover-scale transition-all duration-200">Gerar Completo</Button>
                 </div>
               </div>
             </div>
