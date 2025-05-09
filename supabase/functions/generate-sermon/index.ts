@@ -1,8 +1,8 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// Get the DeepSeek API key from environment variables
-const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
+// Get the Gemini API key from environment variables
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,48 +18,49 @@ serve(async (req) => {
   try {
     const { theme, biblePassage, sermonType, duration, additionalNotes } = await req.json();
     
-    // Create prompt for DeepSeek
+    // Create prompt for Gemini
     const prompt = createSermonPrompt(theme, biblePassage, sermonType, duration, additionalNotes);
     
-    console.log("Calling DeepSeek API with prompt:", prompt);
+    console.log("Calling Gemini API with prompt:", prompt);
     
-    if (!DEEPSEEK_API_KEY) {
-      throw new Error('DeepSeek API key is not configured');
+    if (!GEMINI_API_KEY) {
+      throw new Error('Gemini API key is not configured');
     }
     
-    // Call DeepSeek API
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    // Call Gemini API
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
         'Content-Type': 'application/json',
+        'x-goog-api-key': GEMINI_API_KEY,
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
+        contents: [
           {
-            role: 'system',
-            content: 'Você é um assistente especializado em teologia cristã e preparação de sermões. Produza conteúdo bíblico, doutrinalmente sólido e pastoralmente aplicável.'
-          },
-          {
-            role: 'user',
-            content: prompt
+            role: "user",
+            parts: [
+              {
+                text: prompt
+              }
+            ]
           }
         ],
-        temperature: 0.7,
-        max_tokens: 4000,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 4000,
+        }
       }),
     });
 
     const data = await response.json();
     
     if (!response.ok) {
-      console.error("DeepSeek API Error:", data);
-      throw new Error(data.error?.message || 'Falha ao gerar sermão com a API DeepSeek');
+      console.error("Gemini API Error:", data);
+      throw new Error(data.error?.message || 'Falha ao gerar sermão com a API Gemini');
     }
 
-    // Parse and structure the sermon from DeepSeek's response
-    const sermonText = data.choices[0].message.content;
+    // Parse and structure the sermon from Gemini's response
+    const sermonText = data.candidates[0].content.parts[0].text;
     const structuredSermon = parseSermonResponse(sermonText, theme, biblePassage);
 
     return new Response(JSON.stringify(structuredSermon), {

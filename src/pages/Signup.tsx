@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { UserPlus } from 'lucide-react';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -17,6 +18,14 @@ const Signup = () => {
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Verificar se o usuário já está logado
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (isLoggedIn) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -53,6 +62,9 @@ const Signup = () => {
       // Armazenar estado de login (temporário - deve ser substituído)
       localStorage.setItem('isLoggedIn', 'true');
       
+      // Disparar evento para atualizar o navbar
+      window.dispatchEvent(new Event('loginStatusChanged'));
+      
       // Redirecionar para o dashboard
       navigate('/dashboard');
       
@@ -71,15 +83,15 @@ const Signup = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow flex items-center justify-center py-12">
-        <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md border">
+      <main className="flex-grow flex items-center justify-center py-12 bg-gradient-to-b from-brand-blue-50/30 to-white">
+        <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md border animate-scale-in">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold">Crie sua conta</h1>
             <p className="text-gray-600 mt-2">Comece a criar sermões inspiradores hoje mesmo</p>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
+            <div className="animate-fade-in" style={{animationDelay: "0.1s"}}>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                 Nome Completo
               </label>
@@ -90,10 +102,11 @@ const Signup = () => {
                 required
                 value={formData.name}
                 onChange={handleChange}
+                className="transition-all focus:border-brand-blue-400 focus:ring-brand-blue-300"
               />
             </div>
             
-            <div>
+            <div className="animate-fade-in" style={{animationDelay: "0.2s"}}>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email
               </label>
@@ -105,10 +118,11 @@ const Signup = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
+                className="transition-all focus:border-brand-blue-400 focus:ring-brand-blue-300"
               />
             </div>
             
-            <div>
+            <div className="animate-fade-in" style={{animationDelay: "0.3s"}}>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Senha
               </label>
@@ -120,10 +134,11 @@ const Signup = () => {
                 required
                 value={formData.password}
                 onChange={handleChange}
+                className="transition-all focus:border-brand-blue-400 focus:ring-brand-blue-300"
               />
             </div>
             
-            <div>
+            <div className="animate-fade-in" style={{animationDelay: "0.4s"}}>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
                 Confirmar Senha
               </label>
@@ -135,10 +150,11 @@ const Signup = () => {
                 required
                 value={formData.confirmPassword}
                 onChange={handleChange}
+                className="transition-all focus:border-brand-blue-400 focus:ring-brand-blue-300"
               />
             </div>
             
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 animate-fade-in" style={{animationDelay: "0.5s"}}>
               Ao se registrar, você concorda com os nossos{" "}
               <Link to="/terms" className="text-brand-blue-600 hover:underline">
                 Termos de Uso
@@ -151,14 +167,28 @@ const Signup = () => {
             
             <Button 
               type="submit" 
-              className="w-full bg-brand-blue-600 hover:bg-brand-blue-700"
+              className="w-full bg-brand-blue-600 hover:bg-brand-blue-700 transition-all transform hover:-translate-y-1 animate-fade-in"
+              style={{animationDelay: "0.6s"}}
               disabled={isLoading}
             >
-              {isLoading ? "Criando conta..." : "Criar conta"}
+              {isLoading ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Criando conta...
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Criar conta
+                </span>
+              )}
             </Button>
           </form>
           
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center animate-fade-in" style={{animationDelay: "0.7s"}}>
             <p className="text-gray-600">
               Já tem uma conta?{" "}
               <Link to="/login" className="text-brand-blue-600 hover:underline">

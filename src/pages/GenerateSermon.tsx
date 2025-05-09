@@ -17,7 +17,7 @@ const GenerateSermon = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedSermon, setGeneratedSermon] = useState<SermonData | null>(null);
-  const [remainingGenerations, setRemainingGenerations] = useState(3);
+  const [remainingGenerations, setRemainingGenerations] = useState(5); // Aumentado para 5 usos gratuitos
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
@@ -112,7 +112,7 @@ const GenerateSermon = () => {
       <Navbar />
       <main className="flex-grow py-12 bg-gradient-to-b from-brand-blue-50/50 to-white">
         <div className="container-custom">
-          <div className="mb-8">
+          <div className="mb-8 animate-fade-in">
             <h1 className="heading-lg mb-2">Gerador de Sermão</h1>
             <p className="text-gray-600 text-lg">
               Preencha os campos abaixo para gerar um sermão personalizado.
@@ -120,7 +120,7 @@ const GenerateSermon = () => {
           </div>
           
           {/* Exibir limite de gerações para usuários gratuitos */}
-          <Alert className="mb-6 border-brand-blue-200 bg-brand-blue-50">
+          <Alert className="mb-6 border-brand-blue-200 bg-brand-blue-50 animate-fade-in">
             <AlertTitle className="flex items-center gap-2">
               <span className="text-brand-blue-600">Plano Gratuito</span>
             </AlertTitle>
@@ -131,7 +131,7 @@ const GenerateSermon = () => {
           </Alert>
           
           {error && (
-            <Alert variant="destructive" className="mb-6">
+            <Alert variant="destructive" className="mb-6 animate-fade-in">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Erro</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
@@ -139,17 +139,17 @@ const GenerateSermon = () => {
           )}
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div>
+            <div className="animate-fade-in">
               <SermonForm onGenerateSermon={handleGenerateSermon} isLoading={isLoading} />
             </div>
             
-            <div>
+            <div className="animate-fade-in">
               {isLoading ? (
                 <SermonLoadingSkeleton />
               ) : generatedSermon ? (
                 <SermonDisplay sermon={generatedSermon} />
               ) : (
-                <div className="bg-white rounded-lg border shadow-sm p-6 flex flex-col items-center justify-center h-full">
+                <div className="bg-white rounded-lg border shadow-sm p-6 flex flex-col items-center justify-center h-full hover-scale">
                   <div className="w-16 h-16 bg-brand-blue-50 rounded-full flex items-center justify-center mb-4">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
