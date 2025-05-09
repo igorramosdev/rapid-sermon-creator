@@ -2,7 +2,9 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Copy } from "lucide-react";
+import { Download, Copy, BookOpen, Check } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export interface SermonData {
   title: string;
@@ -23,6 +25,7 @@ interface SermonDisplayProps {
 
 const SermonDisplay: React.FC<SermonDisplayProps> = ({ sermon }) => {
   const { toast } = useToast();
+  const [copied, setCopied] = React.useState(false);
   
   const handleCopy = () => {
     // Create a formatted text version of the sermon
@@ -47,10 +50,15 @@ const SermonDisplay: React.FC<SermonDisplayProps> = ({ sermon }) => {
     }
     
     navigator.clipboard.writeText(sermonText).then(() => {
+      setCopied(true);
       toast({
         title: "Copiado!",
         description: "O sermão foi copiado para a área de transferência."
       });
+      
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
     }).catch(() => {
       toast({
         title: "Erro ao copiar",
@@ -133,61 +141,84 @@ const SermonDisplay: React.FC<SermonDisplayProps> = ({ sermon }) => {
   };
   
   return (
-    <div className="bg-white rounded-lg border shadow-sm p-6">
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">{sermon.title}</h2>
-          <p className="text-gray-600">Referência: {sermon.bibleReference}</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleCopy}>
-            <Copy className="h-4 w-4 mr-1" />
-            Copiar
-          </Button>
-          <Button size="sm" onClick={handleDownload}>
-            <Download className="h-4 w-4 mr-1" />
-            Baixar
-          </Button>
+    <Card className="overflow-hidden border-brand-blue-200">
+      <div className="bg-brand-blue-600 text-white py-3 px-6">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5" />
+            <h3 className="font-semibold">Sermão Gerado</h3>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" onClick={handleCopy} className="text-white hover:bg-brand-blue-700">
+              {copied ? (
+                <>
+                  <Check className="h-4 w-4 mr-1" />
+                  Copiado
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4 mr-1" />
+                  Copiar
+                </>
+              )}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleDownload} className="text-white hover:bg-brand-blue-700">
+              <Download className="h-4 w-4 mr-1" />
+              Baixar
+            </Button>
+          </div>
         </div>
       </div>
       
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Introdução</h3>
-          <p className="text-gray-700">{sermon.introduction}</p>
+      <div className="p-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">{sermon.title}</h2>
+          <div className="flex items-center">
+            <p className="text-gray-600">Referência: {sermon.bibleReference}</p>
+            <Badge variant="outline" className="ml-2 border-brand-blue-200 text-brand-blue-700">
+              {sermon.points.length} pontos
+            </Badge>
+          </div>
         </div>
         
-        {sermon.points.map((point, index) => (
-          <div key={index}>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {index + 1}. {point.title}
-            </h3>
-            <p className="text-gray-700 mb-2">{point.content}</p>
-            {point.bibleReferences.length > 0 && (
-              <p className="text-sm text-gray-500">
-                Referências: {point.bibleReferences.join(', ')}
-              </p>
-            )}
+        <div className="space-y-6 divide-y">
+          <div className="pb-4">
+            <h3 className="text-lg font-semibold text-brand-blue-800 mb-2">Introdução</h3>
+            <p className="text-gray-700">{sermon.introduction}</p>
           </div>
-        ))}
-        
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Conclusão</h3>
-          <p className="text-gray-700">{sermon.conclusion}</p>
+          
+          {sermon.points.map((point, index) => (
+            <div key={index} className="py-4">
+              <h3 className="text-lg font-semibold text-brand-blue-800 mb-2">
+                {index + 1}. {point.title}
+              </h3>
+              <p className="text-gray-700 mb-2">{point.content}</p>
+              {point.bibleReferences.length > 0 && (
+                <p className="text-sm text-gray-500 italic">
+                  Referências: {point.bibleReferences.join(', ')}
+                </p>
+              )}
+            </div>
+          ))}
+          
+          <div className="py-4">
+            <h3 className="text-lg font-semibold text-brand-blue-800 mb-2">Conclusão</h3>
+            <p className="text-gray-700">{sermon.conclusion}</p>
+          </div>
+          
+          {sermon.applicationQuestions.length > 0 && (
+            <div className="pt-4">
+              <h3 className="text-lg font-semibold text-brand-blue-800 mb-2">Perguntas para Aplicação</h3>
+              <ul className="list-disc pl-5 space-y-2">
+                {sermon.applicationQuestions.map((question, index) => (
+                  <li key={index} className="text-gray-700">{question}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-        
-        {sermon.applicationQuestions.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Perguntas para Aplicação</h3>
-            <ul className="list-disc pl-5 space-y-1">
-              {sermon.applicationQuestions.map((question, index) => (
-                <li key={index} className="text-gray-700">{question}</li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
-    </div>
+    </Card>
   );
 };
 

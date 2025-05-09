@@ -23,6 +23,10 @@ serve(async (req) => {
     
     console.log("Calling DeepSeek API with prompt:", prompt);
     
+    if (!DEEPSEEK_API_KEY) {
+      throw new Error('DeepSeek API key is not configured');
+    }
+    
     // Call DeepSeek API
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',

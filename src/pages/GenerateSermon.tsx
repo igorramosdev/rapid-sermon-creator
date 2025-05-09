@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from '@/integrations/supabase/client';
 import SermonLoadingSkeleton from '@/components/SermonLoadingSkeleton';
+import { AlertCircle } from "lucide-react";
 
 const GenerateSermon = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const GenerateSermon = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedSermon, setGeneratedSermon] = useState<SermonData | null>(null);
   const [remainingGenerations, setRemainingGenerations] = useState(3);
+  const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
     // Verificar se o usuário está autenticado
@@ -46,6 +48,7 @@ const GenerateSermon = () => {
     
     setIsLoading(true);
     setGeneratedSermon(null); // Clear any previous sermon
+    setError(null); // Clear any previous errors
     
     try {
       console.log("Invoking edge function with data:", formData);
@@ -61,6 +64,11 @@ const GenerateSermon = () => {
       }
       
       console.log("Received sermon data:", data);
+      
+      if (!data || !data.title) {
+        throw new Error('Dados do sermão inválidos ou incompletos');
+      }
+      
       setGeneratedSermon(data);
       setRemainingGenerations(prev => prev - 1);
       
@@ -83,6 +91,8 @@ const GenerateSermon = () => {
     } catch (error) {
       console.error('Erro ao gerar sermão:', error);
       
+      setError(error.message || 'Ocorreu um erro ao gerar o sermão');
+      
       toast({
         title: "Erro ao gerar sermão",
         description: "Ocorreu um erro ao gerar o sermão. Por favor, tente novamente.",
@@ -100,7 +110,7 @@ const GenerateSermon = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow py-12">
+      <main className="flex-grow py-12 bg-gradient-to-b from-brand-blue-50/50 to-white">
         <div className="container-custom">
           <div className="mb-8">
             <h1 className="heading-lg mb-2">Gerador de Sermão</h1>
@@ -110,13 +120,23 @@ const GenerateSermon = () => {
           </div>
           
           {/* Exibir limite de gerações para usuários gratuitos */}
-          <Alert className="mb-6">
-            <AlertTitle>Plano Gratuito</AlertTitle>
+          <Alert className="mb-6 border-brand-blue-200 bg-brand-blue-50">
+            <AlertTitle className="flex items-center gap-2">
+              <span className="text-brand-blue-600">Plano Gratuito</span>
+            </AlertTitle>
             <AlertDescription>
-              Você tem <span className="font-semibold">{remainingGenerations} gerações</span> disponíveis este mês.
-              Para gerações ilimitadas, <a href="/plans" className="text-brand-blue-600 hover:underline">faça upgrade para Pro</a>.
+              Você tem <span className="font-semibold text-brand-blue-600">{remainingGenerations} gerações</span> disponíveis este mês.
+              Para gerações ilimitadas, <a href="/plans" className="text-brand-blue-600 hover:underline font-medium">faça upgrade para Pro</a>.
             </AlertDescription>
           </Alert>
+          
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Erro</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
